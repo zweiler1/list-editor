@@ -1,0 +1,18 @@
+/* ALL OF THE VARIABLES */
+
+:root {
+  --color-editor-background: #e3e3e3;
+  --color-editor-border: #e0e0e0;
+  --color-editor-foreground: #333333;
+  --color-collapsible-inactive: #eee;
+  --color-collapsible-active: #ccc;
+  --color-true: #80ad47;
+  --color-false: #b65151;
+  --color-switch: #684141;
+  --color-button: #684141;
+  --color-button-hover: #885656; 
+  --slider-width: 60px;
+  --slider-height: 30px;
+  --add-row-width: 120px;
+  --add-row-height: 30px;
+}
