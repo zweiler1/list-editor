@@ -18,55 +18,9 @@
       ini_set('display_startup_errors', 1);
       error_reporting(E_ALL);
 
-      # Returns the header text of a given tables name (the name of the .json and its id)
-      function getHeader($tableName) {
-        switch($tableName) {
-          case 'movies': return 'Filme';
-          case 'series': return 'Serien';
-          case 'ps5': return 'Playstation 5';
-          case 'ps4': return 'Playstation 4';
-          case 'ps3': return 'Playstation 3';
-          case 'ps2': return 'Playstation 2';
-          case 'ps1': return 'Playstation 1';
-          case 'xone': return 'Xbox One';
-          case 'x360': return 'Xbox 360';
-          case 'nds': return 'Nintendo DS';
-          case 'wii': return 'Wii';
-          case 'wiiu': return 'Wii U';
-          case 'steam': return 'Steam';
-          case 'gog': return 'GOG';
-          case 'epic': return 'Epic';
-          case 'amazon': return 'Amazon';
-          case 'ubisoft': return 'Ubisoft';
-          case 'ea': return 'EA';
-          case 'physical': return 'Physical';
-        }
-      }
-
-      # Creates the collapsible elongated button which shows / hides the table
-      function createCollapsible($tableName) {
-        $header = getHeader($tableName);
-        return <<<EOL
-          <div class="collapsible">
-              <h2>$header</h2>
-              <button 
-                id="{$tableName}_add_row" 
-                class="btn_add_row" 
-                onclick="addRow($tableName)"
-                onmouseover="onButtonHover(true)"
-                onmouseleave="onButtonHover(false)">
-                Neuer Eintrag
-              </button>
-              <label class="switch">
-                <input
-                  id="{$tableName}_switch"
-                  type="checkbox"
-                  onchange="changeEditMode($tableName)">
-                <span class="slider round"></span>
-              </label>
-            </div>
-          EOL;
-      }
+      # Loads the tables.json into a object
+      $tablesData = file_get_contents("./data/tables.json", "tables.json");
+      $tables = json_decode($tablesData);
 
       # Imports the functions from the tables.php file in order to use them
       require('tables.php');

@@ -132,6 +132,29 @@
         </table>
       </div>
     EOL;
-    return $table;
+
+  # Creates the collapsible elongated button which shows / hides the table
+  function createCollapsible($header, $tableName) {
+    return <<<EOL
+      <div class="collapsible">
+          <h2 id="header_{$tableName}">$header</h2>
+          <button 
+            id="{$tableName}_add_row" 
+            class="btn_add_row" 
+            onclick="addRow($tableName)"
+            onmouseover="onButtonHover(true)"
+            onmouseleave="onButtonHover(false)">
+            Neuer Eintrag
+          </button>
+          <label class="switch">
+            <input
+              id="{$tableName}_switch"
+              type="checkbox"
+              onchange="changeEditMode($tableName)">
+            <span class="slider round"></span>
+          </label>
+        </div>
+      EOL;
+  }
   }
 ?>
