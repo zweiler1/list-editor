@@ -1,1 +1,3 @@
-./data/*
+data
+tools/csv-in/*.csv
+tools/json-out/*.json
