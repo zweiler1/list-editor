@@ -48,34 +48,72 @@ function onValueChange(id) {
   }
 }
 
+// Checks for the type and depending on the type returns another subsection of the content
+function getContent(type, content) {
+  switch(type) {
+    case "descriptor": return content.childNodes[0].nodeValue;
+    case "textfield": return content.childNodes[0].nodeValue;
+    case "checkbox": return content.checked ? "true" : "false";
+    default:
+      console.log("Cannot get content of wrong type: '" + type + "'");
+      break;
+  }
+}
+
 // Extracts the data from the table and returns it as a json string
 function getDataFromTable(tableName) {
   var tableBody = document.getElementById(tableName);
-  var data = [];
-  for(var i = 0; i < tableBody.childNodes.length; i++) {
-    var node = tableBody.childNodes[i];
-    console.log(node.cells[0]);
-    if(node.nodeName == "HEADER") {
-      i = tableBody.childNodes.length + 1;
-    } else if(node.id != undefined && node.id != "" 
-      && node.cells[0].childNodes[1].childNodes.length > 0 
-      && node.cells[0].childNodes[1].childNodes[0].nodeValue != null) 
-    {
-      data.push({
-        name: node.cells[0].childNodes[1].innerHTML,
-        year: node.cells[1].childNodes[1].innerHTML,
-        type: node.cells[2].childNodes[1].innerHTML,
-        name1: node.cells[3].childNodes[1].checked ? "true" : "-",
-        name2: node.cells[4].childNodes[1].checked ? "true" : "-",
-        name3: node.cells[5].childNodes[1].checked ? "true" : "-",
-        name4: node.cells[6].childNodes[1].checked ? "true" : "-",
-        name5: node.cells[7].childNodes[1].checked ? "true" : "-",
-        name6: node.cells[8].childNodes[1].checked ? "true" : "-"
-      });
+  var tableHeader = document.getElementById("header_" + tableName).childNodes[0].nodeValue;
+  var data = {
+    "header": tableHeader,
+    "tag": tableName,
+    "columns": []
+  };
+
+  // Initialize the columns data and set the names of the columns respectively
+  var tableHead = document.getElementById(tableName + "_head");
+  var tableHeadColumns = tableHead.childNodes[1];
+  for(let col = 0; col < tableHeadColumns.childNodes.length; col++) {
+    let cell = tableHeadColumns.childNodes[col];
+    if(cell.nodeName == "TH") {
+      data.columns.push({
+        name: cell.textContent,
+        type: "",
+        data: []
+      })
     }
   }
-  
-  return JSON.stringify({ data: data });
+
+  var isEmptyRow = false;
+  for(var row = 0; row < tableBody.childNodes.length; row++) {
+    let rowNode = tableBody.childNodes[row];
+    var col = 0;
+    rowNode.childNodes.forEach(colNode => {
+      var type = colNode.className;
+      if(type != undefined && !isEmptyRow) {
+        type = type.toString().replace("cell_", "");
+        let content = colNode.childNodes[1];
+        console.log(type);
+        if(type == "descriptor") {
+          console.log(content);
+        }
+        if(content.childNodes.length == 0 && type == "descriptor") {
+          isEmptyRow = true;
+        } else {
+          if(data.columns[col].type == "") {
+            data.columns[col].type = type;
+          }
+
+          var contentString = getContent(type, content);
+          data.columns[col].data.push(contentString);
+          col++;
+        }
+      }
+    });
+    isEmptyRow = false;
+  }
+
+  return JSON.stringify(data);
 }
 
 // Creates an html element from the given string
