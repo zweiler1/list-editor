@@ -104,6 +104,34 @@ function elementFromHtml(html) {
   return template.content.firstElementChild;
 }
 
+function getEmptyCellString(type) {
+  switch(type) {
+    case "descriptor": return "";
+    case "textfield": return "-";
+    case "checkbox": return "false";
+  }
+}
+
+function getEmptyRow(tableName) {
+  var columns = [];
+  var table = document.getElementById(tableName);
+  console.log(table);
+  var firstRow = table.childNodes[0].childNodes;
+  firstRow.forEach(cell => {
+    let type = cell.className;
+      if(type != undefined) {
+        type = type.toString().replace("cell_", "");
+        columns.push({
+          name: "Name",
+          type: type,
+          data: [getEmptyCellString(type)]
+        })
+      }
+  });
+  
+  return JSON.stringify(columns);
+}
+
 // Called whenever the "add row" button was pushed
 function addRow(id) {
   var tableName = id.id;
