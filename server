@@ -5,7 +5,7 @@ print_error() {
     exit "$1"
 }
 
-editor_path="$(realpath "$(dirname "$0")")/editor"
+editor_path="$(realpath "$(dirname "$0")")"
 
 case "$1" in
     start) docker run --rm --name server -d -p 8082:80 --mount type=bind,source="$editor_path/",target=/var/www/html php:apache ;;
