@@ -61,11 +61,11 @@ firstLine="$(head "$1" -n1)"
 secondLine="$(head "$1" -n2 | tail -n1)"
 entryCount="$(echo "$firstLine" | sed 's/[^,]*//g' | wc -c)"
 IFS=" " read -r -a headers <<< "$(echo -n "$firstLine" | sed 's/[^a-zA-Z0-9]*//' | sed 's/,/ /g')"
-IFS=" " read -r -a types <<< "$(echo -n "$secondLine" | sed 's/[^a-zA-Z0-9]*//' | sed 's/,/ /g')"
-
+declare -a types
 declare -i index=0
 while [ $index -lt "$entryCount" ]; do
-    types[index]="$(getType "${types[$index]}")"
+    type="$(getType "$(echo -n "$secondLine" | cut -d ',' -f$((index + 1)))")"
+    types+=("$type")
     if [ $index -eq 0 ]; then
         types[index]="descriptor"
     fi
