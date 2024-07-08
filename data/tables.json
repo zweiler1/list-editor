@@ -1,3 +1,7 @@
 {
-    
+    "header": "List of all Movies and Games",
+    "groups": [{
+        "name": "Movies and Series",
+        "tables": ["movies", "series"]
+    }]
 }

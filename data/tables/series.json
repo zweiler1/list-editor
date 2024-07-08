@@ -1,0 +1,19 @@
+{
+  "header": "Series",
+  "tag": "series",
+  "columns": [
+    {
+      "name": "Name",
+      "type": "descriptor",
+      "data": ["Matrix 11", "Matrix 22", "Matrix 33"]
+    },
+    { "name": "Year", "type": "textfield", "data": ["1793", "-", "-"] },
+    { "name": "Person 1", "type": "checkbox", "data": ["true", "true", "false"] },
+    {
+      "name": "Person 2",
+      "type": "checkbox",
+      "data": ["false", "false", "true"]
+    },
+    { "name": "Additional", "type": "checkbox", "data": ["false", "true", "false"] }
+  ]
+}
