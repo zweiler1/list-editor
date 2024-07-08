@@ -87,51 +87,42 @@
     }
   }
 
-  function createTableRows($tableName, $isEditable) {
-    # Load da data
-    $tableData = file_get_contents("./data/$tableName.json", "$tableName.json");
-    $jsonData = json_decode($tableData);
-
+  function createTableRows($tableName, $columns, $isEditable) {
     $rows = "";
-    # Creating the table rows
-    if ($jsonData != null) {
-      for ($i=0; $i < count($jsonData->data); $i++) {
-        $rows .= createRowFromData($i, $jsonData->data[$i], $tableName, $isEditable);
-      }
-    }
     return $rows;
   }
 
-  function createTable($tableName, $isEditable) {
-    $h3 = "SNr";
-    if($tableName == "movies" || $tableName == "series") {
-      $h3 = "Typ";
-    }
+  function createHeaderCell($tableName, $columnID, $column) {
+    return "<th scope=\"row\" id=\"{$tableName}_header_{$columnID}\">$column->name</th>";
+  }
 
-    $table =  <<<EOL
+  # Creates a table from the given table data
+  function createTable($tableName, $columns, $isEditable) {
+    # Build the head of the table
+    $returnElement = <<<EOL
       <div id="{$tableName}_container" class="table_container content">
         <table>
-          <thead>
+          <thead id="{$tableName}_head">
             <tr>
-              <th scope="row" id="{$tableName}_name">Name</th>
-              <th scope="row" id="{$tableName}_year">Jahr</th>
-              <th scope="row" id="{$tableName}_type">$h3</th>
-              <th scope="row" id="{$tableName}_name1">name1</th>
-              <th scope="row" id="{$tableName}_name2">name2</th>
-              <th scope="row" id="{$tableName}_name3">name3</th>
-              <th scope="row" id="{$tableName}_name4">name4</th>
-              <th scope="row" id="{$tableName}_name5">name5</th>
-              <th scope="row" id="{$tableName}_name6">name6</th>
+      EOL;
+    for ($i = 0; $i < count($columns); $i++) {
+      $returnElement .= createHeaderCell($tableName, $i, $columns[$i]);
+    }
+    $returnElement .= <<<EOL
             </tr>
           </thead>
           <tbody id="$tableName">
-    EOL;
-    $table .= createTableRows($tableName, $isEditable);
-    $table .= <<<EOL
+      EOL;
+
+    $returnElement .= createTableRows($tableName, $columns, $isEditable);
+
+    $returnElement .= <<<EOL
           </tbody>
         </table>
       </div>
     EOL;
+    return $returnElement;
+  }
 
   # Creates the collapsible elongated button which shows / hides the table
   function createCollapsible($header, $tableName) {
