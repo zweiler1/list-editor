@@ -6,27 +6,7 @@ let colorGreenDark = "#668A39";
 let colorRedLight = "#B65151";
 let colorRedDark = "#A44949";
 
-var editable = {
-  'movies': false,
-  'series': false,
-  'ps5': false,
-  'ps4': false,
-  'ps3': false,
-  'ps2': false,
-  'ps1': false,
-  'xone': false,
-  'x360': false,
-  'nds': false,
-  'wii': false,
-  'wiiu': false,
-  'steam': false,
-  'gog': false,
-  'epic': false,
-  'amazon': false,
-  'ubisoft': false,
-  'ea': false,
-  'physical': false
-};
+var editable = {};
 
 var hovering = false;
 var requesting = false;
@@ -181,7 +161,10 @@ async function changeEditMode(id) {
   await $.ajax({
     method: "POST",
     url: "events.php",
-    data: { tableName: tableName, isEditable: editable[tableName] }
+    data: { 
+      tableName: tableName, 
+      isEditable: editable[tableName] 
+    }
   }).done(function(response) {
     //console.log(response);
     document.getElementById(tableName).innerHTML = response;
