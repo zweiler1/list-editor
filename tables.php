@@ -156,6 +156,23 @@
         </div>
       EOL;
   }
+  
+  # Creates a Group of tables
+  function createGroup($group) {
+    $returnedElement = "<h2 class=\"separator\">$group->name</h2>";
+    foreach ($group->tables as $tableName) {
+      # Load the table from json into an object
+      $tableData = file_get_contents("./data/tables/$tableName.json", "$tableName.json");
+      $table = json_decode($tableData);
+      if(!is_object($table)) {
+        return "Error: The file '$table.json' could not be parsed! ($tableName)";
+        exit;
+      }
+      $returnedElement .= createCollapsible($table->header, $table->tag);
+      $returnedElement .= createTable($table->tag, $table->columns, false);
+    }
+    return $returnedElement;
+  }
 
   # Create the header with a given header text
   function createHeader($headerText) {
