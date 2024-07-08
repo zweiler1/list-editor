@@ -31,9 +31,7 @@
       $tableName = $_POST['tableName'];
       $isEditable = $_POST['isEditable'] === 'true' ? true : false;
       require_once("tables.php");
-      $tableRows = createTableRows($tableName, $isEditable);
-      // Send the data back
-      echo $tableRows;
+      echo createTableRows($tableName, null, $isEditable);
       exit;
     }  else if (isset($_POST['tableName']) && isset($_POST['data'])) {
       // Save the given json data to the file
