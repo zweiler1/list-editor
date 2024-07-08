@@ -38,10 +38,12 @@
       $tableName = $_POST['tableName'];
       $data = $_POST['data'];
       if(json_validate_custom($data)) {
-        $file = fopen("data/$tableName.json",'w+');
+        $file = fopen("data/tables/$tableName.json",'w+');
         if(is_resource($file)) {
           fwrite($file, $data);
           fclose($file);
+          echo "Successfully saved the table!";
+          exit;
         } else {
           echo "Error: File is not a resource: ";
           echo "$file";
