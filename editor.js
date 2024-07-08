@@ -107,21 +107,16 @@ function elementFromHtml(html) {
 // Called whenever the "add row" button was pushed
 function addRow(id) {
   var tableName = id.id;
+  var index = document.getElementById(tableName).childNodes.length;
   $.ajax({
     method: "POST",
     url: "events.php",
     data: { 
       tableName: tableName, 
-      data: {
-        name: "",
-        year: "-",
-        type: "-"
-      },
-      id: document.getElementById(tableName).childNodes.length,
-      isEditable: true
+      data: getEmptyRow(tableName),
+      id: index
     }
   }).done(function(response) {
-    //console.log(response);
     document.getElementById(tableName).appendChild(elementFromHtml(response));
     // change the table containers max height to take the new added row into account
     var container = document.getElementById(tableName + "_container");

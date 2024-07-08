@@ -17,15 +17,13 @@
   }
 
   if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if(isset($_POST['tableName']) && isset($_POST['data']) && isset($_POST['id']) && isset($_POST['isEditable'])) {
+    if(isset($_POST['tableName']) && isset($_POST['data']) && isset($_POST['id'])) {
       // Method call when requesting a single new empty row (add row called)
       $tableName = $_POST['tableName'];
-      $data = $_POST['data'];
       $id = $_POST['id'];
-      $isEditable = $_POST['isEditable'];
+      $data = $_POST['data'];
       require_once("tables.php");
-      $row = createRowFromData($id, $data, $tableName, $isEditable);
-      echo $row;
+      echo createTableRow($tableName, $id, json_decode($data), true, true);
       exit;
     } else if (isset($_POST['tableName']) && isset($_POST['isEditable'])) {
       // Method call when requestng to create a whole new table (edit mode changed)
