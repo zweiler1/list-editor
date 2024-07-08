@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # $1 = path to csv file
 # $2 = path to the output directory
@@ -18,11 +18,36 @@ printError() {
     exit 1
 }
 
+getType() {
+    if [ "$(echo "$1" | grep -i 'true')" == "true" ] || 
+        [ "$(echo "$1" | grep -i 'false')" == "false" ]; then
+        echo "checkbox"
+    elif [ "$1" != "" ]; then
+        echo "textfield"
+    # How to differentiate beween textfield and descriptor? I think it is not possible easily...
+    # elif [ "$(echo "$1" | grep -E '')" != "" ]; then
+    #     echo "descriptor"
+    else
+        echo "undefined"
+    fi
+}
+
+lineBreak() {
+    case $1 in
+        descriptor) echo 3 ;;
+        textfield) echo 6 ;;
+        checkbox) echo 12 ;;
+        *) echo 1 ;;
+    esac
+}
+
+fileName=$(basename "$1" | rev | cut -d '.' -f 2- | rev)
+echo "Current File: $fileName"
 ./clean_csv.sh "$1" || printError "Failed to clean CSV file"
 
 # Check if the output directory is specified, if not the current directory is used
 if [ -z "$2" ]; then
-    OUTPUT_DIR="$SCRIPTPATH/editor/data"
+    OUTPUT_DIR="$SCRIPTPATH/json-out"
 fi
 
 # Check if the directory the output is specified and exists
@@ -30,58 +55,55 @@ if [ ! -d "$(dirname "$OUTPUT_DIR")" ]; then
     printError "Output directory does not exist"
 fi
 
-echo "Converting CSV to JSON..."
-fileName=$(basename "$1" | rev | cut -d '.' -f 2- | rev)
+echo "    Converting CSV to JSON..."
 
-echo -n '{
-    "data":
-    [' > "$OUTPUT_DIR/$fileName.json"
+firstLine="$(head "$1" -n1)"
+secondLine="$(head "$1" -n2 | tail -n1)"
+entryCount="$(echo "$firstLine" | sed 's/[^,]*//g' | wc -c)"
+IFS=" " read -r -a headers <<< "$(echo -n "$firstLine" | sed 's/[^a-zA-Z0-9]*//' | sed 's/,/ /g')"
+IFS=" " read -r -a types <<< "$(echo -n "$secondLine" | sed 's/[^a-zA-Z0-9]*//' | sed 's/,/ /g')"
 
-lineNum=0
-while IFS="" read -r line || [ -n "$line" ]; do
-    if [ $lineNum -eq 0 ]; then
-        lineNum=$((lineNum + 1))
-        continue
+declare -i index=0
+while [ $index -lt "$entryCount" ]; do
+    types[index]="$(getType "${types[$index]}")"
+    if [ $index -eq 0 ]; then
+        types[index]="descriptor"
     fi
+    index+=1
+done
 
-    name=$(echo -n "$line" | cut -d ',' -f 1)
-    year=$(echo -n "$line" | cut -d ',' -f 2)
-    type=$(echo -n "$line" | cut -d ',' -f 3)
-    name1=$(echo -n "$line" | cut -d ',' -f 4)
-    name2=$(echo -n "$line" | cut -d ',' -f 5)
-    name3=$(echo -n "$line" | cut -d ',' -f 6)
-    name4=$(echo -n "$line" | cut -d ',' -f 7)
-
-    case "$name1" in
-        *true*) name1='"true"';;
-        *) name1='"-"';;
-    esac
-    case "$name2" in
-        *true*) name2='"true"';;
-        *) name2='"-"';;
-    esac
-    case "$name3" in
-        *true*) name3='"true"';;
-        *) name3='"-"';;
-    esac
-    case "$name4" in
-        *true*) name4='"true"';;
-        *) name4='"-"';;
-    esac
-
+index=0
+declare -i lineNum=0
+{ echo -n "{
+    \"header\": \"$fileName\",
+    \"tag\": \"$fileName\",
+    \"columns\": ["
+while [ $index -lt "$entryCount" ]; do
+    [ $index -gt 0 ] && echo -n ", "
     echo -n "{
-        \"name\": \"$name\",
-        \"year\": \"$year\",
-        \"type\": \"$type\",
-        \"name1\": $name1,
-        \"name2\": $name2,
-        \"name3\":$name3,
-        \"name4\": $name4
-    }," >> "$OUTPUT_DIR/$fileName.json"
-    lineNum=$((lineNum + 1))
-done < "$1"
+        \"name\": \"${headers[$index]}\",
+        \"type\": \"${types[$index]}\",
+        \"data\": ["
+    lineNum=0
+    declare -i lineBreaks
+    lineBreaks="$(lineBreak "${types[$index]}")"
+    while IFS="" read -r line || [ -n "$line" ]; do
+        if ! [ $lineNum -eq 0 ]; then
+            [ $lineNum -gt 1 ] && echo -n ', '
+            if [ $(((lineNum - 1) % lineBreaks)) -eq 0 ]; then
+                echo
+                echo -n "            "
+            fi
+            echo -n "\"$(echo -n "$line" | cut -d ',' -f"$((index + 1))")\""
+        fi
+        lineNum+=1
+    done < "$1"
+    echo -n "]
+    }"
+    index+=1
+done 
 echo "]
-}" >> "$OUTPUT_DIR/$fileName.json"
-
+}"
+} > "$OUTPUT_DIR/$fileName.json"
 # Remove the last comma in the whole file. Why does this work? I have no idea.
-sed -i '1h;1!H;$!d;g;s/\(.*\),/\1/' "$OUTPUT_DIR/$fileName.json"
+#sed -i '1h;1!H;$!d;g;s/\(.*\),/\1/' "$OUTPUT_DIR/$fileName.json"
