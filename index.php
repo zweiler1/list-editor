@@ -27,9 +27,7 @@
     ?>
   </head>
   <body>
-    <header>
-      <h1>Auflistung aller Filme, Serien und Spiele</h1>
-    </header>
+    <?php echo createHeader($tables->header); ?>
     <main>
       <div class="table_splitter">
         <h2 class="separator">Filme und Serien</h2>

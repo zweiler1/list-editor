@@ -156,5 +156,13 @@
         </div>
       EOL;
   }
+
+  # Create the header with a given header text
+  function createHeader($headerText) {
+    return <<<EOL
+      <header>
+        <h1>$headerText</h1>
+      </header>
+    EOL;
   }
 ?>
