@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>list-editor</title>
-    <link rel="icon" type="image/x-icon" href="table-tree-svgrepo-com.svg">
+    <link rel="icon" type="image/x-icon" href="icon.svg">
     <style>
       @import url("styles/variables.css");
       @import url("styles/table.css");
