@@ -73,10 +73,10 @@ function getDataFromTable(tableName) {
       if(type != undefined && !isEmptyRow) {
         type = type.toString().replace("cell_", "");
         let content = colNode.childNodes[1];
-        console.log(type);
-        if(type == "descriptor") {
-          console.log(content);
-        }
+        //console.log(type);
+        //if(type == "descriptor") {
+        //  console.log(content);
+        //}
         if(content.childNodes.length == 0 && type == "descriptor") {
           isEmptyRow = true;
         } else {
@@ -115,7 +115,7 @@ function getEmptyCellString(type) {
 function getEmptyRow(tableName) {
   var columns = [];
   var table = document.getElementById(tableName);
-  console.log(table);
+  //console.log(table);
   var firstRow = table.childNodes[0].childNodes;
   firstRow.forEach(cell => {
     let type = cell.className;
