@@ -98,11 +98,11 @@ while [ $index -lt "$entryCount" ]; do
         fi
         lineNum+=1
     done < "$1"
-    echo -n "]
+    echo -n " ]
     }"
     index+=1
 done 
-echo "]
+echo " ]
 }"
 } > "$OUTPUT_DIR/$fileName.json"
 # Remove the last comma in the whole file. Why does this work? I have no idea.
