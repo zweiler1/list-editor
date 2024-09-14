@@ -29,7 +29,7 @@ function onValueChange(id) {
 }
 
 // Checks for the type and depending on the type returns another subsection of the content
-function getContent(type, content) {
+function getContentEdit(type, content) {
   switch(type) {
     case "descriptor": return content.childNodes[0].nodeValue;
     case "textfield": return content.childNodes[0].nodeValue;
@@ -41,7 +41,7 @@ function getContent(type, content) {
 }
 
 // Extracts the data from the table and returns it as a json string
-function getDataFromTable(tableName) {
+function getDataFromTableEdit(tableName) {
   var tableBody = document.getElementById(tableName);
   var tableHeader = document.getElementById("header_" + tableName).childNodes[0].nodeValue;
   var data = {
@@ -57,7 +57,7 @@ function getDataFromTable(tableName) {
     let cell = tableHeadColumns.childNodes[col];
     if(cell.nodeName == "TH") {
       data.columns.push({
-        name: cell.textContent,
+        name: cell.innerText,
         type: "",
         data: []
       })
@@ -84,7 +84,7 @@ function getDataFromTable(tableName) {
             data.columns[col].type = type;
           }
 
-          var contentString = getContent(type, content);
+          var contentString = getContentEdit(type, content);
           data.columns[col].data.push(contentString);
           col++;
         }
@@ -165,11 +165,14 @@ async function changeEditMode(id) {
 
   if(!editable[tableName]) {
     // Save the table data into the respective json file
-    var data = getDataFromTable(tableName);
+    var data = getDataFromTableEdit(tableName);
     await $.ajax({
       method: "POST",
       url: "events.php",
-      data: { tableName: tableName, data: data }
+      data: { 
+        tableName: tableName, 
+        data: data 
+      }
     }).done(function(response) {
       if(response != undefined && response != "") {
         console.log(response);
@@ -213,4 +216,157 @@ for (var i = 0; i < coll.length; i++) {
       }
     }
   });
+}
+
+function getContent(type, content) {
+  switch(type) {
+    case "descriptor": return content;
+    case "textfield": return content;
+    case "checkbox": return content == "true" ? "true" : "false";
+    default:
+      console.log("Cannot get content of wrong type: '" + type + "'");
+      break;
+  }
+}
+
+// Get the data from the table when in view mode
+function getDataFromTable(tableName) {
+  var tableBody = document.getElementById(tableName);
+  var tableHeader = document.getElementById("header_" + tableName).childNodes[0].nodeValue;
+  var data = {
+    "header": tableHeader,
+    "tag": tableName,
+    "columns": []
+  };
+
+  // Initialize the columns data and set the names of the columns respectively
+  var tableHead = document.getElementById(tableName + "_head");
+  var tableHeadColumns = tableHead.childNodes[1];
+  for(let col = 0; col < tableHeadColumns.childNodes.length; col++) {
+    let cell = tableHeadColumns.childNodes[col];
+    if(cell.nodeName == "TH") {
+      data.columns.push({
+        name: cell.outerText,
+        type: "",
+        data: []
+      })
+    }
+  }
+
+  for(var row = 0; row < tableBody.childNodes.length; row++) {
+    let rowNode = tableBody.childNodes[row];
+    var col = 0;
+    rowNode.childNodes.forEach(colNode => {
+      var type = colNode.className;
+      if(type != undefined) {
+        type = type.toString().replace("cell_", "");
+        let content = colNode.innerHTML;
+
+        if(data.columns[col].type == "") {
+          data.columns[col].type = type;
+        }
+
+        var contentString = getContent(type, content);
+        data.columns[col].data.push(contentString);
+        col++;
+      }
+    });
+  }
+
+  return data;
+}
+
+
+// SORTING STUFF
+async function sortForColumn(columnID, tableName) {
+  var tableData = getDataFromTable(tableName.id);
+  var ascending = true;
+  var newOrder = getOrderArray(tableData.columns[columnID], true);
+  if(isOrderUnchanged(newOrder)) {
+    newOrder = getOrderArray(tableData.columns[columnID], false);
+    ascending = false;
+  }
+  
+  console.log("Sorting for column '" + tableData.columns[columnID].name + 
+    "' in table '" + tableName.id + "' " + (ascending ? "ascending" : "descending"));
+  tableData.columns = moveColumns(tableData.columns, newOrder);
+  var newTable = await createTableFromData(tableData);
+  document.getElementById(tableName.id).innerHTML = newTable;
+}
+
+// Checks whether the order has not changed. This is the case whenn the table is sorted ascending, for example
+// This function is used to detect if the table is sorted ascending, if it is, it is sorted descending
+function isOrderUnchanged(order) {
+  var orderUnchanged = true;
+  order.forEach(element => {
+    if(element != order.indexOf(element)) 
+      orderUnchanged = false;
+  });
+  return orderUnchanged;
+}
+
+// Returns an object array containing the old and the new position of the sorted list
+function getOrderArray(column, isAscending) {
+  // create a copy of the original array
+  const sortedArr = column.data.slice();
+  sortedArr.sort((a, b) => isAscending ? 
+    ("" + a).localeCompare("" + b, undefined, { numeric: true })
+    : ("" + b).localeCompare("" + a, undefined, { numeric: true }));
+  
+  const newIndicesAccessed = [];
+  const oldToNewIndices = [];
+  for (let i = 0; i < column.data.length; i++) {
+    var newIndex = sortedArr.indexOf(column.data[i]);
+    while(newIndicesAccessed[newIndex] != undefined) {
+      newIndex++;
+    }
+    newIndicesAccessed[newIndex]++;
+    oldToNewIndices[i] = newIndex;
+  }
+
+  return oldToNewIndices;
+}
+
+function columnsDeepCopy(columns) {
+  const newColumns = [];
+  columns.forEach(column => {
+    const newColumn = {};
+    newColumn.name = column.name;
+    newColumn.type = column.type;
+    newColumn.data = [];
+    for(let i = 0; i < column.data.length; i++) {
+      newColumn.data[i] = column.data[i];
+    }
+    newColumns.push(newColumn);
+  });
+  return newColumns;
+}
+
+// Moves all rows of the columns to their new positions
+function moveColumns(columns, fromToArray) {
+
+  // Make a deep copy of the columns object
+  var newColumns = columnsDeepCopy(columns);
+
+  for(let i = 0; i < fromToArray.length; i++) {
+    for(let j = 0; j < columns.length; j++) {
+      newColumns[j].data[fromToArray[i]] = columns[j].data[i];
+    }
+  }
+  return newColumns;
+}
+
+// Creates a table from the given data
+async function createTableFromData(data) {
+  var table = "";
+  await $.ajax({
+    method: "POST",
+    url: "events.php",
+    data: { 
+      tableData: JSON.stringify(data)
+    }
+  }).done(function(response) {
+    table = response;
+  });
+  return table;
 }

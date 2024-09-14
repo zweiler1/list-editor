@@ -61,7 +61,19 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 			printArray($_POST);
 			exit();
 		}
-	} else {
+	} else if (isset($_POST["tableData"])) { 
+		// Method Call when changing the sorting order and the table has to be created
+		$tableData = $_POST["tableData"];
+		if(!json_validate_custom($tableData)) {
+			echo "Error: Table Data when trying to sort the table is not in valid json form!";
+			exit();
+		}
+		$tableData = json_decode($tableData);
+		require_once "tables.php";
+		echo createTableRowsFromData($tableData);
+		exit();
+	}
+	else {
 		echo "Error: Invalid parameters.";
 		exit();
 	}

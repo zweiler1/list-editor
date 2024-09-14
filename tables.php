@@ -108,7 +108,13 @@
   }
 
   function createHeaderCell($tableName, $columnID, $column) {
-    return "<th scope=\"row\" id=\"{$tableName}_header_{$columnID}\">$column->name</th>";
+    return <<<EOL
+      <th scope="row" 
+      id="{$tableName}_header_{$columnID}"
+      onclick="sortForColumn($columnID, $tableName)">
+        $column->name
+      </th>
+      EOL;
   }
 
   # Creates a table from the given table data
@@ -136,6 +142,22 @@
         </table>
       </div>
     EOL;
+    return $returnElement;
+  }
+
+  # Creates a table from the given data
+  function createTableRowsFromData($tableData) {
+    $tag = $tableData->tag;
+    $columns = $tableData->columns;
+    $returnElement = "";
+    for ($i=0; $i < count($columns[0]->data); $i++) {   
+      $returnElement .= "\n<tr id=\"{$tag}_entry_{$i}\" class=\"row_entry\">";
+      for ($j=0; $j < count($columns); $j++) {
+        $returnElement .= "\n\t";
+        $returnElement .= createBodyCell($i, $j, $tag, $columns[$j]->type, $columns[$j]->data[$i], false, $i % 2 == 0);
+      }
+      $returnElement .= "</tr>";
+    }
     return $returnElement;
   }
 
