@@ -53,6 +53,15 @@ th {
   height: 20pt;
   border: solid 1pt;
   font-size: 14pt;
+  transition-duration: 50ms;
+  transition: all;
+}
+
+th:hover {
+  background-color: var(--color-editor-border);
+  transition-duration: 100ms;
+  transition: all;
+  cursor: pointer;
 }
 
 td {
