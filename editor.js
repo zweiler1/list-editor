@@ -11,6 +11,8 @@ var editable = {};
 var hovering = false;
 var requesting = false;
 
+var openedTable = null;
+
 // Called when the checkbox state changes
 function onValueChange(id) {
   let id_arr = id.id.split("_");
@@ -202,6 +204,14 @@ function onButtonHover(inside) {
   hovering = inside;
 }
 
+function toggleTable(content, inactive) {
+  if (inactive) {
+    content.style.maxHeight = null;
+  } else {
+    content.style.maxHeight = content.scrollHeight + "px";
+  }
+}
+
 // Makes the buttons collaps the content right "below" them
 var coll = document.getElementsByClassName("collapsible");
 for (var i = 0; i < coll.length; i++) {
@@ -209,11 +219,13 @@ for (var i = 0; i < coll.length; i++) {
     if(!hovering) {
       this.classList.toggle("active");
       var content = this.nextElementSibling;
-      if (content.style.maxHeight){
-        content.style.maxHeight = null;
-      } else {
-        content.style.maxHeight = content.scrollHeight + "px";
+      if(openedTable != null && openedTable != content) {
+        toggleTable(openedTable, true);
+        openedTable = null;
       }
+      const isOpen = content.style.maxHeight;
+      toggleTable(content, isOpen);
+      openedTable = isOpen ? null : content;
     }
   });
 }
