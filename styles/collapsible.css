@@ -15,10 +15,9 @@
     justify-content: space-between;
 }
 
-.active, .collapsible:hover:not(:has(*:hover)) {
+.collapsible:hover {
     background-color: var(--color-collapsible-active);
 }
-
 
 /* The switch - the box around the slider */
 .switch {
