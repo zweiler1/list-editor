@@ -161,8 +161,9 @@ async function changeEditMode(id) {
   if(requesting)
     return;
   requesting = true;
-
   var tableName = id.id;
+  document.getElementById(tableName + "_switch").disabled = true;
+  document.getElementById(tableName + "_slider").className = "slider slider-deactive round";
   editable[tableName] = !editable[tableName];
 
   if(!editable[tableName]) {
@@ -194,8 +195,9 @@ async function changeEditMode(id) {
       isEditable: editable[tableName] 
     }
   }).done(function(response) {
-    //console.log(response);
     document.getElementById(tableName).innerHTML = response;
+    document.getElementById(tableName + "_switch").disabled = false;
+    document.getElementById(tableName + "_slider").className = "slider round";
     requesting = false;
   });
 }

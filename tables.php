@@ -179,7 +179,7 @@
               id="{$tableName}_switch"
               type="checkbox"
               onchange="changeEditMode($tableName)">
-            <span class="slider round"></span>
+            <span class="slider round" id="{$tableName}_slider"></span>
           </label>
         </div>
       EOL;
