@@ -19,7 +19,7 @@
       error_reporting(E_ALL);
 
       # Loads the tables.json into a object
-      $tablesData = file_get_contents("./data/tables.json", "tables.json");
+      $tablesData = file_get_contents("./data/tables.json");
       $tables = json_decode($tablesData);
 
       # Imports the functions from the tables.php file in order to use them
