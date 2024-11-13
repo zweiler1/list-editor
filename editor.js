@@ -199,6 +199,10 @@ async function changeEditMode(id) {
     document.getElementById(tableName + "_switch").disabled = false;
     document.getElementById(tableName + "_slider").className = "slider round";
     requesting = false;
+    
+    var tableLength = document.getElementById(tableName).rows.length;
+    console.log(tableLength);
+    document.getElementById("header_" + tableName + "_count").innerHTML = "[" + tableLength + "]";
   });
 }
 
@@ -384,3 +388,11 @@ async function createTableFromData(data) {
   });
   return table;
 }
+
+// Update the counter in all tables
+var searchedTables = document.querySelectorAll('[id$="_count"]');
+searchedTables.forEach(element => {
+  var id = element.id.replace("header_", "").replace("_count", "");
+  var tableLength = document.getElementById(id).rows.length;
+  element.innerHTML = "[" + tableLength + "]";
+});

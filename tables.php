@@ -165,7 +165,7 @@
   function createCollapsible($header, $tableName) {
     return <<<EOL
       <div class="collapsible">
-          <h2 id="header_{$tableName}">$header</h2>
+          <h2 id="header_{$tableName}">$header <label id=header_{$tableName}_count>[0]</label></h2>
           <button 
             id="{$tableName}_add_row" 
             class="btn_add_row" 
